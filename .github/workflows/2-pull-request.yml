@@ -1,0 +1,58 @@
+---
+name: Pull Request
+
+'on':
+  pull_request:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install cookiecutter Dependencies
+        run: pip3 install -r requirements.txt
+
+      - name: create cookiecutter template
+        run: cookiecutter . --no-input
+
+      - name: install ansible role dependencies
+        run: pip3 install -r my_role_name/requirements.txt
+
+      - name: Lint Code Base with yamllint
+        run: cd my_role_name; yamllint .
+
+      - name: Lint Code Base with ansible-lint
+        run:  cd my_role_name; ansible-lint .
+
+      - name: Run Molecule Tests
+        run: cd my_role_name; molecule test --all
+        env:
+          PY_COLORS: 1
+          ANSIBLE_FORCE_COLOR: 1
+
+  notify:
+    name: Slack Notifications
+    runs-on: ubuntu-latest
+    if: ${{ failure() }}
+    needs:
+      - test
+    steps:
+      - name: Notify Slack channel on failure
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_ICON: https://github.com/ckaserer/logos/raw/master/ansible.png
+          SLACK_USERNAME: ${{ github.repository }}
+          SLACK_COLOR: '#ff0033'
+          SLACK_FOOTER: ''
+...

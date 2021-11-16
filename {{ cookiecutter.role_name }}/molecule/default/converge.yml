@@ -1,0 +1,6 @@
+---
+- name: Converge
+  hosts: instance
+  roles:
+    - role: {{ cookiecutter.namespace }}.{{ cookiecutter.role_name }}
+...
