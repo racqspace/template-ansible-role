@@ -30,7 +30,7 @@ pip3 install -r requirements.txt
 2. Run cookiecutter
 
 ```
-cookicutter https://github.com/racqspace/template-ansible-role
+cookiecutter https://github.com/racqspace/template-ansible-role
 ```
 
 3. Answer the cookiecutter questionair.
